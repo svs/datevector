@@ -24,8 +24,11 @@ class Date
  def weekday
   #week starts on monday
   WEEKDAYS[cwday - 1]
-end
-
+ end
+ 
+ def inspect
+   self.strftime("%Y-%m-%d")
+ end
 
 end
 
@@ -84,10 +87,12 @@ class DateVector
         while (to.class == Date ? d<= to : i <= to)
           [@every].flatten.each do |e|
             d = d.first_day_of_month + e.to_i - 1
-            rv << d if d >= from and (to.class == Date ? d  <= to : i <= to)
+            if d >= from and (to.class == Date ? d  <= to : i <= to)
+              rv << d 
+              i += 1
+            end
           end
           d = (d.last_day_of_month + 1) >> (@of_every - 1)
-          i += 1
         end          
       else
         # handle 2nd tuesday every 2nd month type. every = 2, what = :tuesday, :of_every = 2, :period = :month

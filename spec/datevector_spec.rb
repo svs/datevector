@@ -1,4 +1,4 @@
-require File.join( File.dirname(__FILE__), '..', "spec_helper" )
+require File.join( File.dirname(__FILE__), "spec_helper" )
 
 describe DateVector do
 
@@ -73,18 +73,42 @@ describe DateVector do
     dv.get_dates(Date.new(2010,2,14), Date.new(2010,6,24)).should == all_thursdays_of_2010.select{|d| d >= Date.new(2010,2,14) and d <= Date.new(2010,6,24)}
   end
 
-  it "should return correct dates for monthly datevectors" do
-    dv = DateVector.new(12, :day, 1, :month, Date.new(2010,1,1), Date.new(2010,12,31)) # 12th of every month
-    ev = (0..11).map{|d| Date.new(2010,1,12) >> d}
-    dv.get_dates.should == ev
-    dv.get_dates(Date.new(2010,2,14)).should == ev.select{|d| d >= Date.new(2010,2,14)}
-    dv.get_dates(Date.new(2010,3,12), Date.new(2010,6,24)).should == ev.select{|d| d >= Date.new(2010,3,12) and d <= Date.new(2010,6,24)}
+  describe "monthly datevectors" do
+    describe "one day per month" do
+      before :all do
+        @dv = DateVector.new(12, :day, 1, :month, Date.new(2010,1,1), Date.new(2010,12,31)) # 12th of every month
+        @ev = (1..12).map{|d| Date.new(2010,d,12)}
+      end
+      it "should get_dates correctly" do
+        @dv.get_dates.should == @ev
+      end
+      it "should get_dates with a from parameter correctly" do
+        @dv.get_dates(Date.new(2010,2,14)).should == @ev.select{|d| d >= Date.new(2010,2,14)}
+      end
+      it "should get dates with a from and to parameter correctly" do
+        @dv.get_dates(Date.new(2010,3,12), Date.new(2010,6,24)).should == @ev.select{|d| d >= Date.new(2010,3,12) and d <= Date.new(2010,6,24)}
+      end
+      it "should get dates with a from and to parameter as Fixnumcorrectly" do
+        @dv.get_dates(Date.new(2010,3,12), 3).should == @ev.select{|d| d >= Date.new(2010,3,12) and d <= Date.new(2010,6,24)}
+      end
+    end
 
-    dv = DateVector.new([12,27], :day, 1, :month, Date.new(2010,1,1), Date.new(2010,12,31)) # 12th and 27th of every month
-    ev = ((0..11).map{|d| Date.new(2010,1,12) >> d} + (0..11).map{|d| Date.new(2010,1,27) >> d}).sort
-    dv.get_dates.should == ev
-    dv.get_dates(Date.new(2010,2,14)).should == ev.select{|d| d >= Date.new(2010,2,14)}
-    dv.get_dates(Date.new(2010,3,12), Date.new(2010,6,24)).should == ev.select{|d| d >= Date.new(2010,3,12) and d <= Date.new(2010,6,24)}
+    describe "multiple days per month" do
+      before :all do
+        @dv = DateVector.new([12,27], :day, 1, :month, Date.new(2010,1,1), Date.new(2010,12,31)) # 12th and 27th of every month
+        @ev = ((0..11).map{|d| Date.new(2010,1,12) >> d} + (0..11).map{|d| Date.new(2010,1,27) >> d}).sort
+      end
+      it "should get_dates without parameters correctly" do
+        @dv.get_dates.should == @ev
+      end
+      it "should get_dates with a from parameter correctly" do
+        @dv.get_dates(Date.new(2010,2,14)).should == @ev.select{|d| d >= Date.new(2010,2,14)}
+      end
+      it "should get dates with a from and to parameter correctly" do
+        @dv.get_dates(Date.new(2010,3,12), Date.new(2010,6,24)).should == @ev.select{|d| d >= Date.new(2010,3,12) and d <= Date.new(2010,6,24)}
+      end
+    end
+
   end
 
   it "should return correct dates for multi-monthly datevectors" do
